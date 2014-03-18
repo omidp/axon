@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,6 @@ import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.ClassUtils;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -168,7 +168,7 @@ public class AxonBeanHelper
         List<Field> fieldList = newArrayList(clazz.getDeclaredFields());
         if (includeParents)
         {
-            List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(clazz);
+            List<Class<?>> superClasses = getAllSuperclasses(clazz);
             for (Class<?> superClazz : superClasses)
             {
                 if (superClazz != Object.class)
@@ -176,6 +176,19 @@ public class AxonBeanHelper
             }
         }
         return fieldList;
+    }
+    
+    public static List<Class<?>> getAllSuperclasses(Class<?> cls) {
+        if (cls == null) {
+            return null;
+        }
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        Class<?> superclass = cls.getSuperclass();
+        while (superclass != null) {
+            classes.add(superclass);
+            superclass = superclass.getSuperclass();
+        }
+        return classes;
     }
 
     /**
@@ -192,7 +205,7 @@ public class AxonBeanHelper
         List<Method> methodList = newArrayList(clazz.getDeclaredMethods());
         if (includeParents)
         {
-            List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(clazz);
+            List<Class<?>> superClasses = getAllSuperclasses(clazz);
             for (Class<?> superClazz : superClasses)
             {
                 if (superClazz != Object.class)
@@ -201,6 +214,31 @@ public class AxonBeanHelper
         }
         return methodList;
     }
+    
+    public static List<Class<?>> getAllInterfaces(Class<?> cls) {
+        if (cls == null) {
+            return null;
+        }
+
+        LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<Class<?>>();
+        getAllInterfaces(cls, interfacesFound);
+
+        return new ArrayList<Class<?>>(interfacesFound);
+    }
+    
+    private static void getAllInterfaces(Class<?> cls, HashSet<Class<?>> interfacesFound) {
+        while (cls != null) {
+            Class<?>[] interfaces = cls.getInterfaces();
+
+            for (Class<?> i : interfaces) {
+                if (interfacesFound.add(i)) {
+                    getAllInterfaces(i, interfacesFound);
+                }
+            }
+
+            cls = cls.getSuperclass();
+         }
+     }
 
     /**
      * Checks whether class1 is a subclass of class2
@@ -211,8 +249,8 @@ public class AxonBeanHelper
      */
     public static boolean isSubclass(Class<?> class1, Class<?> class2)
     {
-        List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(class1);
-        List<Class<?>> superInterfaces = ClassUtils.getAllInterfaces(class1);
+        List<Class<?>> superClasses = getAllSuperclasses(class1);
+        List<Class<?>> superInterfaces = getAllInterfaces(class1);
         for (Class<?> c : superClasses)
         {
             if (class2 == c)
