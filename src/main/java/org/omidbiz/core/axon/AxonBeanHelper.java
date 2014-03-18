@@ -1,6 +1,5 @@
 package org.omidbiz.core.axon;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -177,14 +173,17 @@ public class AxonBeanHelper
         }
         return fieldList;
     }
-    
-    public static List<Class<?>> getAllSuperclasses(Class<?> cls) {
-        if (cls == null) {
+
+    public static List<Class<?>> getAllSuperclasses(Class<?> cls)
+    {
+        if (cls == null)
+        {
             return null;
         }
         List<Class<?>> classes = new ArrayList<Class<?>>();
         Class<?> superclass = cls.getSuperclass();
-        while (superclass != null) {
+        while (superclass != null)
+        {
             classes.add(superclass);
             superclass = superclass.getSuperclass();
         }
@@ -214,9 +213,11 @@ public class AxonBeanHelper
         }
         return methodList;
     }
-    
-    public static List<Class<?>> getAllInterfaces(Class<?> cls) {
-        if (cls == null) {
+
+    public static List<Class<?>> getAllInterfaces(Class<?> cls)
+    {
+        if (cls == null)
+        {
             return null;
         }
 
@@ -225,20 +226,24 @@ public class AxonBeanHelper
 
         return new ArrayList<Class<?>>(interfacesFound);
     }
-    
-    private static void getAllInterfaces(Class<?> cls, HashSet<Class<?>> interfacesFound) {
-        while (cls != null) {
+
+    private static void getAllInterfaces(Class<?> cls, HashSet<Class<?>> interfacesFound)
+    {
+        while (cls != null)
+        {
             Class<?>[] interfaces = cls.getInterfaces();
 
-            for (Class<?> i : interfaces) {
-                if (interfacesFound.add(i)) {
+            for (Class<?> i : interfaces)
+            {
+                if (interfacesFound.add(i))
+                {
                     getAllInterfaces(i, interfacesFound);
                 }
             }
 
             cls = cls.getSuperclass();
-         }
-     }
+        }
+    }
 
     /**
      * Checks whether class1 is a subclass of class2
@@ -264,23 +269,30 @@ public class AxonBeanHelper
         return false;
     }
 
-    public static List<Property> getProperties(Class<?> clazz, boolean includeParents)
+    public static List<Property> getProperties(Object bean, boolean includeParents)
     {
         List<Property> result = new ArrayList<Property>();
-        for (PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(clazz))
+        Method[] declaredMethods = bean.getClass().getDeclaredMethods();
+        if (declaredMethods != null)
         {
-            if (descriptor.getReadMethod() != null && !descriptor.getName().equals("class"))
+            for (Method method : declaredMethods)
             {
-                result.add(new Property(descriptor.getName(), descriptor.getReadMethod(), descriptor.getWriteMethod()));
+                String methodName = method.getName();
+                if (methodName.startsWith("get"))
+                {
+                    String propName = WordUtils.uncapitalize(methodName.substring("get".length(), methodName.length()));
+                    // TODO : descriptor.getWriteMethod() instead of null
+                    result.add(new Property(propName, method, null));
+                }
             }
         }
         return result;
 
     }
 
-    public static Property getProperty(Class<?> clazz, boolean searchParents, String name)
+    public static Property getProperty(Object bean, boolean searchParents, String name)
     {
-        List<Property> props = getProperties(clazz, searchParents);
+        List<Property> props = getProperties(bean, searchParents);
         for (Property property : props)
         {
             if (property.getName().equals(name))
@@ -337,16 +349,15 @@ public class AxonBeanHelper
 
         try
         {
-            BeanUtils.setProperty(target, p.getName(), value);
+            Field declaredField = target.getClass().getDeclaredField(p.getName());
+            declaredField.setAccessible(true);
+            declaredField.set(target, value);
         }
-        catch (IllegalAccessException e)
+        catch (Exception e)
         {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-        catch (InvocationTargetException e)
-        {
-            throw new RuntimeException(e);
-        }
+
     }
 
     public static Collection<?> instantiateCollection(Property p)
@@ -372,11 +383,12 @@ public class AxonBeanHelper
         else
             throw new RuntimeException("unknown type");
     }
-    
-    public static <E> ArrayList<E> newArrayList(E... elements) {
+
+    public static <E> ArrayList<E> newArrayList(E... elements)
+    {
         ArrayList<E> list = new ArrayList<E>(elements.length);
         Collections.addAll(list, elements);
         return list;
-      }
+    }
 
 }

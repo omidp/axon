@@ -128,7 +128,7 @@ public class Axon
     public void parseJsonObject(Object bean, JSONObject jsonObject) throws JSONException, InstantiationException, IllegalAccessException,
             NoSuchFieldException, SecurityException
     {
-        List<Property> props = AxonBeanHelper.getProperties(bean.getClass(), true);
+        List<Property> props = AxonBeanHelper.getProperties(bean, true);
         for (Property p : props)
         {
             if (p.getSetter() == null || !jsonObject.has(p.getName()))

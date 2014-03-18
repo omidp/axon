@@ -36,7 +36,7 @@ public class ObjectElement implements Element
             return;
         else
         {
-            List<Property> props = AxonBeanHelper.getProperties(value.getClass(), true);
+            List<Property> props = AxonBeanHelper.getProperties(value, true);
             // FIXME : when property is enum this loop never ends
             for (Property property : props)
             {
