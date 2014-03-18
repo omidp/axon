@@ -15,7 +15,7 @@ How to build
 ===
 
 ```
-   mvn clean install
+   mvn clean install -DskipTests=true
 ```
 
 How to Use
