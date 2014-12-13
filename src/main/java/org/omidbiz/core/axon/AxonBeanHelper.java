@@ -282,7 +282,20 @@ public class AxonBeanHelper
                 {
                     String propName = WordUtils.uncapitalize(methodName.substring("get".length(), methodName.length()));
                     // TODO : descriptor.getWriteMethod() instead of null
-                    result.add(new Property(propName, method, null));
+                    try
+                    {
+                        Method setter = bean.getClass().getMethod("set"+WordUtils.capitalizeFirstWord(propName), method.getReturnType());
+                        result.add(new Property(propName, method, setter));
+                    }
+                    catch (NoSuchMethodException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    catch (SecurityException e)
+                    {
+                        e.printStackTrace();
+                    }
+
                 }
             }
         }
