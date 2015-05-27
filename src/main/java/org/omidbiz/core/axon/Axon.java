@@ -145,6 +145,14 @@ public class Axon
             {
                 parseJsonArray(p, jsonObject, bean);
             }
+            else if(Date.class.equals(propertyTargetClass))
+            {
+            	Object val = jsonObject.get(p.getName());
+                Date date = new Date((Long) val);
+                AxonBeanHelper.setPropertyValue(bean, p, date);
+            	
+            }
+
             else
             {
                 parseJsonObject(bean, p, jsonObject);
