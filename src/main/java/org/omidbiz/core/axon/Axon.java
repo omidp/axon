@@ -2,6 +2,7 @@ package org.omidbiz.core.axon;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
