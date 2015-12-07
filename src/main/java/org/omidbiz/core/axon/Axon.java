@@ -13,7 +13,6 @@ import org.omidbiz.core.axon.internal.BasicElement;
 import org.omidbiz.core.axon.internal.ObjectElement;
 import org.omidbiz.core.axon.internal.SerializationContext;
 
-
 public class Axon
 {
 
@@ -84,10 +83,13 @@ public class Axon
     }
 
     /**
-     * @param jsonContent : json String for building object
-     * @param clz : base class to instantiate
-     * @param prototype : if there is preloaded object pass it as prototype
-     *            otherwise pass null
+     * @param jsonContent
+     *            : json String for building object
+     * @param clz
+     *            : base class to instantiate
+     * @param prototype
+     *            : if there is preloaded object pass it as prototype otherwise
+     *            pass null
      * @return
      */
     public <T> T toObject(String jsonContent, Class<? extends T> clz, T prototype)
@@ -146,12 +148,12 @@ public class Axon
             {
                 parseJsonArray(p, jsonObject, bean);
             }
-            else if(Date.class.equals(propertyTargetClass))
+            else if (Date.class.equals(propertyTargetClass))
             {
-            	Object val = jsonObject.get(p.getName());
+                Object val = jsonObject.get(p.getName());
                 Date date = new Date((Long) val);
                 AxonBeanHelper.setPropertyValue(bean, p, date);
-            	
+
             }
 
             else
@@ -220,10 +222,18 @@ public class Axon
 
             for (int i = 0; i < arr.length(); i++)
             {
-                JSONObject o = arr.getJSONObject(i);
-                Object element = elementType.newInstance();
-                c.add(element);
-                parseJsonObject(element, o);
+                Object item = arr.get(i);
+                if(AxonBeanHelper.isPrimitiveOrWrapper(item))
+                {
+                    c.add(item);
+                }
+                if (item instanceof JSONObject)
+                {
+                    JSONObject o = arr.getJSONObject(i);
+                    Object element = elementType.newInstance();
+                    c.add(element);
+                    parseJsonObject(element, o);
+                }
             }
 
         }
