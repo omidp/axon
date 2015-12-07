@@ -207,10 +207,18 @@ public class Axon
 
             for (int i = 0; i < arr.length(); i++)
             {
-                JSONObject o = arr.getJSONObject(i);
-                Object element = elementType.newInstance();
-                Array.set(c, i, element);
-                parseJsonObject(element, o);
+                Object item = arr.get(i);
+                if (AxonBeanHelper.isPrimitiveOrWrapper(item))
+                {
+                    Array.set(c, i, item);
+                }
+                if (item instanceof JSONObject)
+                {
+                    JSONObject o = arr.getJSONObject(i);
+                    Object element = elementType.newInstance();
+                    Array.set(c, i, element);
+                    parseJsonObject(element, o);
+                }
             }
         }
         else
@@ -223,7 +231,7 @@ public class Axon
             for (int i = 0; i < arr.length(); i++)
             {
                 Object item = arr.get(i);
-                if(AxonBeanHelper.isPrimitiveOrWrapper(item))
+                if (AxonBeanHelper.isPrimitiveOrWrapper(item))
                 {
                     c.add(item);
                 }

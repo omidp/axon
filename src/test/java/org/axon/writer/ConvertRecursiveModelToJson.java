@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.omidbiz.core.axon.Axon;
 import org.omidbiz.core.axon.AxonBuilder;
+import org.omidbiz.core.axon.filters.RecursionControlFilter;
 
 
 /**
@@ -39,7 +40,7 @@ public class ConvertRecursiveModelToJson
         comment = new CommentModel(new Long(1), rootDocument, "Comment for Root");
         child1.setComments(Arrays.asList(comment));
         //
-        ax = new AxonBuilder().create();
+        ax = new AxonBuilder().addFilter(new RecursionControlFilter()).create();
         
     }
     
