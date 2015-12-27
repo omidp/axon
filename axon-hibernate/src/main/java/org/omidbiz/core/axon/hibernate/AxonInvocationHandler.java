@@ -9,6 +9,7 @@ import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
 import org.omidbiz.core.axon.AxonBeanHelper;
 import org.omidbiz.core.axon.Property;
+import org.omidbiz.core.axon.filters.RecursionControlFilter;
 
 /**
  * @author Omid Pourhadi
@@ -22,6 +23,7 @@ public class AxonInvocationHandler implements InvocationHandler
 
     private Object delegate;
     private Session session;
+    private Object persistenceObject;
 
     public AxonInvocationHandler(Object delegate, Session session)
     {
@@ -34,33 +36,42 @@ public class AxonInvocationHandler implements InvocationHandler
     {
         try
         {
-            if ("exclude".equals(method.getName()))
+            if (RecursionControlFilter.class.equals(delegate.getClass()))
             {
-                Object targetEntity = args[1];
-                Property property = (Property) args[2];
-                Object value = args[3];
-                //
-                if (session.contains(targetEntity) == false)
+                if ("beforeFilter".equals(method.getName()))
                 {
-                    // add session to persistent collection
-                    session.refresh(targetEntity);
+                    return method.invoke(delegate, args);
                 }
-                //
-                if (value != null && AxonBeanHelper.isArrayOrCollection(value.getClass()))
+                // exclude
+                if ("exclude".equals(method.getName()))
                 {
-                    // prevent lazyinitializing exception
-                    boolean initialized = Hibernate.isInitialized(value);
-                    boolean propertyInitialized = Hibernate.isPropertyInitialized(targetEntity, property.getName());
-                    Hibernate.initialize(value);
-//                    if (session.contains(value) == false)
-//                    {
-//                        value = initializeAndUnproxy(value);
-//                        session.setReadOnly(value, true);
-//                    }
+                    Object targetEntity = args[1];
+                    Property property = (Property) args[2];
+                    Object value = args[3];
+                    Object invoke = null;
+                    if (AxonBeanHelper.isPrimitiveOrWrapper(property.getGetter().getReturnType()) == false)
+                    {
+                        // no way to prevent closing session, we have to hit db
+                        // due to preventing from closing session we only
+                        // serialized primitive not object
+                        // exclude non-primitive
+                        // session = session.getSessionFactory().openSession();
+                        // Object initializeAndUnproxy =
+                        // initializeAndUnproxy(targetEntity);
+                        // session.refresh(targetEntity);
+                        // session.close();
+                        return true;
+                    }
+                    invoke = method.invoke(delegate, args[0], targetEntity, property, value);
+                    return invoke;
                 }
-                //
-                return method.invoke(delegate, args[0], targetEntity, property, value);
+                // afterFilter
+                if ("afterFilter".equals(method.getName()))
+                {
+                    return method.invoke(delegate, args);
+                }
             }
+            //
             return method.invoke(delegate, args);
         }
         catch (InvocationTargetException e)

@@ -59,6 +59,7 @@ public class AxonBuilder extends org.omidbiz.core.axon.AxonBuilder
     @Override
     public org.omidbiz.core.axon.AxonBuilder addFilter(Filter filter)
     {
+        //Don't autodetect session
         if (session == null && isSeamAvailable)
         {
             EntityManager em = (EntityManager) Expressions.instance().createValueExpression("#{entityManager}", EntityManager.class)
