@@ -1,9 +1,9 @@
 package org.omidbiz.core.axon;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -11,15 +11,13 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.ClassUtils;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -170,7 +168,7 @@ public class AxonBeanHelper
         List<Field> fieldList = newArrayList(clazz.getDeclaredFields());
         if (includeParents)
         {
-            List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(clazz);
+            List<Class<?>> superClasses = getAllSuperclasses(clazz);
             for (Class<?> superClazz : superClasses)
             {
                 if (superClazz != Object.class)
@@ -178,6 +176,22 @@ public class AxonBeanHelper
             }
         }
         return fieldList;
+    }
+
+    public static List<Class<?>> getAllSuperclasses(Class<?> cls)
+    {
+        if (cls == null)
+        {
+            return null;
+        }
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        Class<?> superclass = cls.getSuperclass();
+        while (superclass != null)
+        {
+            classes.add(superclass);
+            superclass = superclass.getSuperclass();
+        }
+        return classes;
     }
 
     /**
@@ -194,7 +208,7 @@ public class AxonBeanHelper
         List<Method> methodList = newArrayList(clazz.getDeclaredMethods());
         if (includeParents)
         {
-            List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(clazz);
+            List<Class<?>> superClasses = getAllSuperclasses(clazz);
             for (Class<?> superClazz : superClasses)
             {
                 if (superClazz != Object.class)
@@ -202,6 +216,37 @@ public class AxonBeanHelper
             }
         }
         return methodList;
+    }
+
+    public static List<Class<?>> getAllInterfaces(Class<?> cls)
+    {
+        if (cls == null)
+        {
+            return null;
+        }
+
+        LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<Class<?>>();
+        getAllInterfaces(cls, interfacesFound);
+
+        return new ArrayList<Class<?>>(interfacesFound);
+    }
+
+    private static void getAllInterfaces(Class<?> cls, HashSet<Class<?>> interfacesFound)
+    {
+        while (cls != null)
+        {
+            Class<?>[] interfaces = cls.getInterfaces();
+
+            for (Class<?> i : interfaces)
+            {
+                if (interfacesFound.add(i))
+                {
+                    getAllInterfaces(i, interfacesFound);
+                }
+            }
+
+            cls = cls.getSuperclass();
+        }
     }
 
     /**
@@ -213,8 +258,8 @@ public class AxonBeanHelper
      */
     public static boolean isSubclass(Class<?> class1, Class<?> class2)
     {
-        List<Class<?>> superClasses = ClassUtils.getAllSuperclasses(class1);
-        List<Class<?>> superInterfaces = ClassUtils.getAllInterfaces(class1);
+        List<Class<?>> superClasses = getAllSuperclasses(class1);
+        List<Class<?>> superInterfaces = getAllInterfaces(class1);
         for (Class<?> c : superClasses)
         {
             if (class2 == c)
@@ -228,23 +273,59 @@ public class AxonBeanHelper
         return false;
     }
 
-    public static List<Property> getProperties(Class<?> clazz, boolean includeParents)
+    /**
+     * <p>
+     * becuz Android dos not support introspection at the moment we need this mthod to find all read methods (getter)
+     * </p>
+     * @param clz
+     * @param includeParents
+     * @return
+     */
+    public static List<Property> getProperties(Class<?> clz, boolean includeParents)
     {
         List<Property> result = new ArrayList<Property>();
-        for (PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(clazz))
+        List<Method> declaredMethods = new ArrayList<Method>();
+        for (Class c = clz; c != null && c != Object.class; c = c.getSuperclass())
         {
-            if (descriptor.getReadMethod() != null && !descriptor.getName().equals("class"))
+            for (Method method : c.getDeclaredMethods())
             {
-                result.add(new Property(descriptor.getName(), descriptor.getReadMethod(), descriptor.getWriteMethod()));
+                declaredMethods.add(method);
+            }
+        }
+        Map<String, Method> getterMap = new HashMap<String, Method>();
+        Map<String, Method> setterMap = new HashMap<String, Method>();
+        if (declaredMethods != null && declaredMethods.size() > 0)
+        {            
+            for (Method method : declaredMethods)
+            {
+                if (Modifier.isPublic(method.getModifiers()))
+                {
+                    String methodName = method.getName();
+                    // System.out.println(methodName);
+                    if (methodName.startsWith("get"))
+                    {
+                        String propName = WordUtils.uncapitalize(methodName.substring("get".length(), methodName.length()));
+                        getterMap.put(propName, method);
+                    }
+                    if (methodName.startsWith("set"))
+                    {
+                        String propName = WordUtils.uncapitalize(methodName.substring("set".length(), methodName.length()));
+                        setterMap.put(propName, method);
+                    }
+                }
+            }
+            for (Map.Entry<String, Method> item : getterMap.entrySet())
+            {
+                result.add(new Property(item.getKey(), item.getValue(), setterMap.get(item.getKey())));
             }
         }
         return result;
 
     }
 
-    public static Property getProperty(Class<?> clazz, boolean searchParents, String name)
+    public static Property getProperty(Class<?> clz, boolean searchParents, String name)
     {
-        List<Property> props = getProperties(clazz, searchParents);
+        List<Property> props = getProperties(clz, searchParents);
         for (Property property : props)
         {
             if (property.getName().equals(name))
@@ -301,15 +382,13 @@ public class AxonBeanHelper
 
         try
         {
-            BeanUtils.setProperty(target, p.getName(), value);
+            Field declaredField = target.getClass().getDeclaredField(p.getName());
+            declaredField.setAccessible(true);
+            declaredField.set(target, value);
         }
-        catch (IllegalAccessException e)
+        catch (Exception e)
         {
-            throw new RuntimeException(e);
-        }
-        catch (InvocationTargetException e)
-        {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -336,11 +415,12 @@ public class AxonBeanHelper
         else
             throw new RuntimeException("unknown type");
     }
-    
-    public static <E> ArrayList<E> newArrayList(E... elements) {
+
+    public static <E> ArrayList<E> newArrayList(E... elements)
+    {
         ArrayList<E> list = new ArrayList<E>(elements.length);
         Collections.addAll(list, elements);
         return list;
-      }
+    }
 
 }

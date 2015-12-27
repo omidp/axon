@@ -2,7 +2,7 @@ package org.axon.model;
 
 import java.util.Date;
 
-public class DateModel
+public class DateModel extends HypModel
 {
 
     public DateModel()
