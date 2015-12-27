@@ -7,11 +7,21 @@
 	<groupId>org.omidbiz</groupId>
 	<artifactId>axon</artifactId>
 	<version>2.0.5</version>
+	<packaging>pom</packaging>	
 	<name>Axon Json Serializer</name>
 	<url>http://omidbiz.com</url>
+	
+	<modules>
+		<module>axon-core</module>
+		<module>axon-hibernate</module>		
+		<!--<module>axon-android</module>-->
+	</modules>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
+	<dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -30,11 +40,24 @@
 			<version>20090211</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.6.10.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.seam</groupId>
+			<artifactId>jboss-seam</artifactId>
+			<version>2.2.2.Final</version>
+			<scope>provided</scope>
+		</dependency>		
+		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.8.3</version>
 		</dependency>
 	</dependencies>
+	</dependencyManagement>
 	<build>
 		<finalName>axon</finalName>
 		<plugins>

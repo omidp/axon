@@ -6,6 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,7 @@ public class AxonBeanHelper
             boolean.class, char.class };
 
     private static final Class<?>[] WRAPPER_TYPES = { Integer.class, Long.class, Short.class, Float.class, Double.class, Byte.class,
-            Boolean.class, Character.class, String.class };
+            Boolean.class, Character.class, String.class, BigDecimal.class, Date.class, java.util.Date.class };
 
     public static boolean isPrimitive(Class<?> clazz)
     {
