@@ -23,7 +23,6 @@ public class AxonInvocationHandler implements InvocationHandler
 
     private Object delegate;
     private Session session;
-    private Object persistenceObject;
 
     public AxonInvocationHandler(Object delegate, Session session)
     {
@@ -60,7 +59,7 @@ public class AxonInvocationHandler implements InvocationHandler
                         // initializeAndUnproxy(targetEntity);
                         // session.refresh(targetEntity);
                         // session.close();
-                        return true;
+                        return Hibernate.isPropertyInitialized(targetEntity, property.getName());
                     }
                     invoke = method.invoke(delegate, args[0], targetEntity, property, value);
                     return invoke;
