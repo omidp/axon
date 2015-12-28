@@ -277,8 +277,10 @@ public class AxonBeanHelper
 
     /**
      * <p>
-     * becuz Android dos not support introspection at the moment we need this mthod to find all read methods (getter)
+     * becuz Android dos not support introspection at the moment we need this
+     * mthod to find all read methods (getter)
      * </p>
+     * 
      * @param clz
      * @param includeParents
      * @return
@@ -297,7 +299,7 @@ public class AxonBeanHelper
         Map<String, Method> getterMap = new HashMap<String, Method>();
         Map<String, Method> setterMap = new HashMap<String, Method>();
         if (declaredMethods != null && declaredMethods.size() > 0)
-        {            
+        {
             for (Method method : declaredMethods)
             {
                 if (Modifier.isPublic(method.getModifiers()))
@@ -384,25 +386,27 @@ public class AxonBeanHelper
 
         try
         {
-            if(p.getSetter() != null)
+            if (p.getSetter() != null)
             {
-                p.getSetter().invoke(target,toObject(p.getSetter().getParameterTypes()[0], value));
+                Object val = toObject(p.getSetter().getParameterTypes()[0], value);
+                p.getSetter().invoke(target, val);
             }
-            //TODO : use cache for performance optimization
-//            List<Field> fieldList = new ArrayList<Field>();
-//            Class<? extends Object> clz = target.getClass();
-//            for (Class c = clz; c != null && c != Object.class; c = c.getSuperclass())
-//            {
-//                fieldList.addAll(Arrays.asList(c.getDeclaredFields()));
-//            }
-//            for (Field field : fieldList)
-//            {
-//                if(field.getName().equals(p.getName()))
-//                {
-//                    field.setAccessible(true);
-//                    field.set(target, value);
-//                }
-//            }            
+            // TODO : use cache for performance optimization
+            // List<Field> fieldList = new ArrayList<Field>();
+            // Class<? extends Object> clz = target.getClass();
+            // for (Class c = clz; c != null && c != Object.class; c =
+            // c.getSuperclass())
+            // {
+            // fieldList.addAll(Arrays.asList(c.getDeclaredFields()));
+            // }
+            // for (Field field : fieldList)
+            // {
+            // if(field.getName().equals(p.getName()))
+            // {
+            // field.setAccessible(true);
+            // field.set(target, value);
+            // }
+            // }
         }
         catch (Exception e)
         {
@@ -440,7 +444,10 @@ public class AxonBeanHelper
         Collections.addAll(list, elements);
         return list;
     }
-    
+
+    private static final String[] formats = { "yyyy/MM/dd", "yyyy-MM-dd", "EEE MMM d HH:mm:ss z yyyy", "yyyy-MM-dd HH:mm:ss",
+            "EEE, d MMM yyyy HH:mm:ss", "EEE MMM d HH:mm:ss z yyyy", };
+
     public static Object toObject(Class clazz, Object value)
     {
         if (value == null)
@@ -453,27 +460,13 @@ public class AxonBeanHelper
         }
         if (Boolean.class == clazz || boolean.class == clazz)
             return (Boolean) value;
+        if (java.util.Date.class == clazz)
+        {
+            return returnDateValeByType(value, java.util.Date.class);
+        }
         if (Date.class == clazz)
         {
-            // TODO: check for shamsi with anootation on model
-            if (value instanceof String)
-            {
-
-                String vDate = (String) value;
-                try
-                {
-                    return (Date) new SimpleDateFormat("yyyy/MM/dd").parse(vDate);
-                }
-                catch (ParseException e)
-                {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-            else
-            {
-                return (Date) value;
-            }
+            return returnDateValeByType(value, Date.class);
         }
         if (Byte.class == clazz || byte.class == clazz)
             return Byte.parseByte(String.valueOf(value));
@@ -492,6 +485,36 @@ public class AxonBeanHelper
         if (String.class == clazz)
             return String.valueOf(value);
         return value;
+    }
+
+    private static <T> T returnDateValeByType(Object value, Class<T> clz)
+    {
+        // TODO: check for solar with anootation on model
+        if (value instanceof String)
+        {
+            String vDate = (String) value;
+            for (String format : formats)
+            {
+                SimpleDateFormat sdf = new SimpleDateFormat(format);
+                try
+                {
+                    T dateValue = (T) sdf.parse(vDate);
+                    if (clz.equals(Date.class))
+                        return (T) new Date(((java.util.Date) dateValue).getTime());
+                    else
+                        return (T) dateValue;
+                }
+                catch (ParseException e)
+                {
+                    // DO NOTHING
+                }
+            }
+        }
+        else
+        {
+            return (T) value;
+        }
+        return null;
     }
 
 }

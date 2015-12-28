@@ -1,5 +1,7 @@
 package org.omidbiz.core.axon.internal;
 
+import java.util.Date;
+
 import org.json.JSONObject;
 
 public class BasicElement implements Element
@@ -21,11 +23,18 @@ public class BasicElement implements Element
     @Override
     public String toJson(SerializationContext ctx)
     {
-        if (value instanceof Character || value instanceof String) {
+        if (value instanceof Character || value instanceof String)
+        {
+            return JSONObject.quote(String.valueOf(value));
+        }
+        if (value instanceof Date || value instanceof java.sql.Date)
+        {
             return JSONObject.quote(String.valueOf(value));
         }
         else
+        {
             return value.toString();
+        }
     }
 
 }
