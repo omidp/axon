@@ -8,6 +8,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -382,9 +384,25 @@ public class AxonBeanHelper
 
         try
         {
-            Field declaredField = target.getClass().getDeclaredField(p.getName());
-            declaredField.setAccessible(true);
-            declaredField.set(target, value);
+            if(p.getSetter() != null)
+            {
+                p.getSetter().invoke(target,toObject(p.getSetter().getParameterTypes()[0], value));
+            }
+            //TODO : use cache for performance optimization
+//            List<Field> fieldList = new ArrayList<Field>();
+//            Class<? extends Object> clz = target.getClass();
+//            for (Class c = clz; c != null && c != Object.class; c = c.getSuperclass())
+//            {
+//                fieldList.addAll(Arrays.asList(c.getDeclaredFields()));
+//            }
+//            for (Field field : fieldList)
+//            {
+//                if(field.getName().equals(p.getName()))
+//                {
+//                    field.setAccessible(true);
+//                    field.set(target, value);
+//                }
+//            }            
         }
         catch (Exception e)
         {
@@ -421,6 +439,59 @@ public class AxonBeanHelper
         ArrayList<E> list = new ArrayList<E>(elements.length);
         Collections.addAll(list, elements);
         return list;
+    }
+    
+    public static Object toObject(Class clazz, Object value)
+    {
+        if (value == null)
+            return null;
+        if (value instanceof String)
+        {
+            String v = (String) value;
+            if (v == null || v.trim().length() == 0)
+                return null;
+        }
+        if (Boolean.class == clazz || boolean.class == clazz)
+            return (Boolean) value;
+        if (Date.class == clazz)
+        {
+            // TODO: check for shamsi with anootation on model
+            if (value instanceof String)
+            {
+
+                String vDate = (String) value;
+                try
+                {
+                    return (Date) new SimpleDateFormat("yyyy/MM/dd").parse(vDate);
+                }
+                catch (ParseException e)
+                {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            else
+            {
+                return (Date) value;
+            }
+        }
+        if (Byte.class == clazz || byte.class == clazz)
+            return Byte.parseByte(String.valueOf(value));
+        if (Short.class == clazz || short.class == clazz)
+            return Short.parseShort(String.valueOf(value));
+        if (BigDecimal.class == clazz)
+            return new BigDecimal(String.valueOf(value));
+        if (Integer.class == clazz || int.class == clazz)
+            return Integer.parseInt(String.valueOf(value));
+        if (Long.class == clazz || long.class == clazz)
+            return Long.parseLong(String.valueOf(value));
+        if (Float.class == clazz || float.class == clazz)
+            return Float.parseFloat(String.valueOf(value));
+        if (Double.class == clazz || double.class == clazz)
+            return Double.parseDouble(String.valueOf(value));
+        if (String.class == clazz)
+            return String.valueOf(value);
+        return value;
     }
 
 }
