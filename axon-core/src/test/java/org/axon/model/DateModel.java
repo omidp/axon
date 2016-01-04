@@ -1,5 +1,6 @@
 package org.axon.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class DateModel extends HypModel
@@ -16,6 +17,17 @@ public class DateModel extends HypModel
 
     private Date startDate;
     private java.sql.Date sqlDate;
+    private Timestamp timestamp;
+
+    public Timestamp getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp)
+    {
+        this.timestamp = timestamp;
+    }
 
     public java.sql.Date getSqlDate()
     {

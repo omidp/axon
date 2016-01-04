@@ -148,13 +148,14 @@ public class Axon
             {
                 parseJsonArray(p, jsonObject, bean);
             }
-            else if (Date.class.equals(propertyTargetClass))
-            {
-                Object val = jsonObject.get(p.getName());
-                Date date = new Date((Long) val);
-                AxonBeanHelper.setPropertyValue(bean, p, date);
-
-            }
+            //handled in Axonbeanhelper method returnDateValeByType as primitive 
+//            else if (Date.class.equals(propertyTargetClass))
+//            {
+//                Object val = jsonObject.get(p.getName());
+//                Date date = new Date((Long) val);
+//                AxonBeanHelper.setPropertyValue(bean, p, date);
+//
+//            }
 
             else
             {

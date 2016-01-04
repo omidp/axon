@@ -8,6 +8,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class AxonBeanHelper
             boolean.class, char.class };
 
     private static final Class<?>[] WRAPPER_TYPES = { Integer.class, Long.class, Short.class, Float.class, Double.class, Byte.class,
-            Boolean.class, Character.class, String.class, BigDecimal.class, Date.class, java.util.Date.class };
+            Boolean.class, Character.class, String.class, BigDecimal.class, Date.class, java.util.Date.class, Timestamp.class };
 
     public static boolean isPrimitive(Class<?> clazz)
     {
@@ -468,6 +469,10 @@ public class AxonBeanHelper
         {
             return returnDateValeByType(value, Date.class);
         }
+        if (Timestamp.class == clazz)
+        {
+            return returnDateValeByType(value, Timestamp.class);
+        }
         if (Byte.class == clazz || byte.class == clazz)
             return Byte.parseByte(String.valueOf(value));
         if (Short.class == clazz || short.class == clazz)
@@ -489,6 +494,7 @@ public class AxonBeanHelper
 
     private static <T> T returnDateValeByType(Object value, Class<T> clz)
     {
+        // TODO : implements me better
         // TODO: check for solar with anootation on model
         if (value instanceof String)
         {
@@ -501,6 +507,8 @@ public class AxonBeanHelper
                     T dateValue = (T) sdf.parse(vDate);
                     if (clz.equals(Date.class))
                         return (T) new Date(((java.util.Date) dateValue).getTime());
+                    else if (clz.equals(Timestamp.class))
+                        return (T) new Timestamp(((java.util.Date) dateValue).getTime());
                     else
                         return (T) dateValue;
                 }
@@ -509,6 +517,16 @@ public class AxonBeanHelper
                     // DO NOTHING
                 }
             }
+        }
+        else if (value instanceof Long)
+        {
+            java.util.Date d = new java.util.Date((Long) value);
+            if (clz.equals(Date.class))
+                return (T) new Date(d.getTime());
+            else if (clz.equals(Timestamp.class))
+                return (T) new Timestamp(d.getTime());
+            else
+                return (T) d;
         }
         else
         {

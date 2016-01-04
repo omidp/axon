@@ -1,5 +1,6 @@
 package org.omidbiz.core.axon.convertors;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import org.omidbiz.core.axon.internal.BasicElement;
@@ -14,7 +15,7 @@ public class EpochDateConverter implements TypeConverter<Date>
     @Override
     public boolean applies(Object instance)
     {
-        return instance != null && instance.getClass() == Date.class || instance.getClass() == java.sql.Date.class;
+        return instance != null && instance.getClass() == Date.class || instance.getClass() == java.sql.Date.class || instance.getClass() == Timestamp.class;
     }
 
     @Override

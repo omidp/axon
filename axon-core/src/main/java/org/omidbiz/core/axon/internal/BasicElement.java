@@ -1,5 +1,6 @@
 package org.omidbiz.core.axon.internal;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import org.json.JSONObject;
@@ -27,7 +28,9 @@ public class BasicElement implements Element
         {
             return JSONObject.quote(String.valueOf(value));
         }
-        if (value instanceof Date || value instanceof java.sql.Date)
+        if (value instanceof Date 
+                || value instanceof java.sql.Date
+                || value instanceof Timestamp)
         {
             return JSONObject.quote(String.valueOf(value));
         }
