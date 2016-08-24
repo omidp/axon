@@ -422,17 +422,17 @@ public class AxonBeanHelper
 
         if (t == Set.class)
         {
-            if(Long.TYPE.equals(type.getClass()))
+            if(Long.class.equals(type))
                 return new HashSet<Long>();
-            if(Integer.TYPE.equals(type.getClass()))
+            if(Integer.class.equals(type))
                 return new HashSet<Integer>();
             return new HashSet<>();
         }
         else if (t == List.class)
         {
-            if(Long.TYPE.equals(type.getClass()))
+            if(Long.class.equals(type))
                 return new ArrayList<Long>();
-            if(Integer.TYPE.equals(type.getClass()))
+            if(Integer.class.equals(type))
                 return new ArrayList<Integer>();
             return new ArrayList<>();
         }
