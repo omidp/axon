@@ -224,8 +224,8 @@ public class Axon
         }
         else
         {
-            Collection<Object> c = (Collection<Object>) AxonBeanHelper.instantiateCollection(property);
             Class<?> elementType = AxonBeanHelper.getGenericFieldClassType(bean.getClass(), property.getName());
+            Collection c =  AxonBeanHelper.instantiateCollection(property, elementType);
             AxonBeanHelper.setPropertyValue(bean, property, c);
             JSONArray arr = jsonObject.getJSONArray(property.getName());
 
@@ -234,7 +234,7 @@ public class Axon
                 Object item = arr.get(i);
                 if (AxonBeanHelper.isPrimitiveOrWrapper(item))
                 {
-                    c.add(item);
+                    c.add(AxonBeanHelper.toObject(elementType, item));
                 }
                 if (item instanceof JSONObject)
                 {

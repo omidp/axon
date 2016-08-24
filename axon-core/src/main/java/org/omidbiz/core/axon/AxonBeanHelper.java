@@ -415,17 +415,25 @@ public class AxonBeanHelper
         }
     }
 
-    public static Collection<?> instantiateCollection(Property p)
+    public static Collection<?> instantiateCollection(Property p, Class<?> type)
     {
         Class<?> t = p.getType();
 
         if (t == Set.class)
         {
-            return new HashSet<Object>();
+            if(Long.TYPE.equals(type))
+                return new HashSet<Long>();
+            if(Integer.TYPE.equals(type))
+                return new HashSet<Integer>();
+            return new HashSet<>();
         }
         else if (t == List.class)
         {
-            return new ArrayList<Object>();
+            if(Long.TYPE.equals(type))
+                return new ArrayList<Long>();
+            if(Integer.TYPE.equals(type))
+                return new ArrayList<Integer>();
+            return new ArrayList<>();
         }
         else if (t == Map.class)
         {
