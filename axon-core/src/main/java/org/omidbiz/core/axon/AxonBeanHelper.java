@@ -1,3 +1,4 @@
+
 package org.omidbiz.core.axon;
 
 import java.lang.reflect.Field;
@@ -421,17 +422,17 @@ public class AxonBeanHelper
 
         if (t == Set.class)
         {
-            if(Long.TYPE.equals(type))
+            if(Long.TYPE.equals(type.getClass()))
                 return new HashSet<Long>();
-            if(Integer.TYPE.equals(type))
+            if(Integer.TYPE.equals(type.getClass()))
                 return new HashSet<Integer>();
             return new HashSet<>();
         }
         else if (t == List.class)
         {
-            if(Long.TYPE.equals(type))
+            if(Long.TYPE.equals(type.getClass()))
                 return new ArrayList<Long>();
-            if(Integer.TYPE.equals(type))
+            if(Integer.TYPE.equals(type.getClass()))
                 return new ArrayList<Integer>();
             return new ArrayList<>();
         }
