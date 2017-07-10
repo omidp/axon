@@ -9,7 +9,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.omidbiz.core.axon.internal.ArrayElement;
+import org.omidbiz.core.axon.internal.AxonSerializer;
 import org.omidbiz.core.axon.internal.BasicElement;
+import org.omidbiz.core.axon.internal.CustomSerializer;
 import org.omidbiz.core.axon.internal.ObjectElement;
 import org.omidbiz.core.axon.internal.SerializationContext;
 
@@ -170,9 +172,12 @@ public class Axon
     private void parseJsonObject(Object bean, Property property, JSONObject jsonObject) throws InstantiationException,
             IllegalAccessException, NoSuchFieldException, SecurityException, JSONException
     {
-        if (typeConverterFound())
+        if (typeConverterFound(property))
         {
-            // here felan
+            CustomSerializer annotation = property.getGetter().getAnnotation(CustomSerializer.class);
+            AxonSerializer as = (AxonSerializer) annotation.interceptor().newInstance();
+            Object val = as.deserialize(bean, property, jsonObject);
+            AxonBeanHelper.setPropertyValue(bean, property, val);
         }
         else if (AxonBeanHelper.isEnum(property.getType()))
         {
@@ -248,9 +253,9 @@ public class Axon
         }
     }
 
-    private boolean typeConverterFound()
+    private boolean typeConverterFound(Property property)
     {
-        return false;
+        return property != null && property.getGetter().isAnnotationPresent(CustomSerializer.class);
     }
 
 }

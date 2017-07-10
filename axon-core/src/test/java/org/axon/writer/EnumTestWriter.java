@@ -15,8 +15,13 @@ public class EnumTestWriter
     {
         EnumModel em = new EnumModel();
         em.setEnumHelper(EnumHelper.HI);
+        em.setEnumAnnot(EnumHelper.BYE);
         Axon axon = new AxonBuilder().create();
-        System.out.println(axon.toJson(em));
+        String str = axon.toJson(em);
+        System.out.println("object to json : " + str);
+        //
+        EnumModel object = axon.toObject(str, EnumModel.class, null);
+        System.out.println("after convert json to object :" + object.getEnumAnnot());
     }
     
     

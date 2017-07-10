@@ -68,7 +68,23 @@ public class SerializationContext
 
         if (target != null && property != null)
             propertyValue = AxonBeanHelper.getPropertyValue(target, property);
-
+        if (target != null && property != null)
+        {
+            if(property.getGetter().isAnnotationPresent(CustomSerializer.class))
+            {
+                CustomSerializer annotation = property.getGetter().getAnnotation(CustomSerializer.class);
+                try
+                {
+                    AxonSerializer as =  (AxonSerializer) annotation.interceptor().newInstance();
+                    return as.serialize(target, property, propertyValue);
+                }
+                catch (InstantiationException | IllegalAccessException e)
+                {
+                    e.printStackTrace();
+                }
+                
+            }
+        }
         if (propertyValue == null)
         {
             return new NullElement();
