@@ -12,6 +12,7 @@ import org.omidbiz.core.axon.internal.ArrayElement;
 import org.omidbiz.core.axon.internal.AxonSerializer;
 import org.omidbiz.core.axon.internal.BasicElement;
 import org.omidbiz.core.axon.internal.CustomSerializer;
+import org.omidbiz.core.axon.internal.Epoch;
 import org.omidbiz.core.axon.internal.ObjectElement;
 import org.omidbiz.core.axon.internal.SerializationContext;
 
@@ -140,8 +141,16 @@ public class Axon
                 continue;
 
             Class<?> propertyTargetClass = p.getType();
-
-            if (AxonBeanHelper.isPrimitiveOrWrapper(propertyTargetClass))
+            if (Date.class.equals(propertyTargetClass) && 
+                    p.getGetter() != null &&
+                    p.getGetter().isAnnotationPresent(Epoch.class))
+            {
+                //handle date as epoch
+                Object val = jsonObject.get(p.getName());
+                Date date = (Date) AxonBeanHelper.toObject(Date.class, val);
+                AxonBeanHelper.setPropertyValue(bean, p, date);
+            }
+            else if (AxonBeanHelper.isPrimitiveOrWrapper(propertyTargetClass))
             {
                 Object val = jsonObject.get(p.getName());
                 AxonBeanHelper.setPropertyValue(bean, p, val);
@@ -150,15 +159,6 @@ public class Axon
             {
                 parseJsonArray(p, jsonObject, bean);
             }
-            //handled in Axonbeanhelper method returnDateValeByType as primitive 
-//            else if (Date.class.equals(propertyTargetClass))
-//            {
-//                Object val = jsonObject.get(p.getName());
-//                Date date = new Date((Long) val);
-//                AxonBeanHelper.setPropertyValue(bean, p, date);
-//
-//            }
-
             else
             {
                 parseJsonObject(bean, p, jsonObject);

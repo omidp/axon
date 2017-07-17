@@ -537,6 +537,16 @@ public class AxonBeanHelper
             else
                 return (T) d;
         }
+        else if (value instanceof Integer)
+        {
+            java.util.Date d = new java.util.Date((Integer) value);
+            if (clz.equals(Date.class))
+                return (T) new Date(d.getTime());
+            else if (clz.equals(Timestamp.class))
+                return (T) new Timestamp(d.getTime());
+            else
+                return (T) d;
+        }
         else
         {
             return (T) value;
