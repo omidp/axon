@@ -147,7 +147,13 @@ public class Axon
             {
                 //handle date as epoch
                 Object val = jsonObject.get(p.getName());
-                Date date = (Date) AxonBeanHelper.toObject(Date.class, val);
+                Epoch ep = p.getGetter().getAnnotation(Epoch.class);
+                long epoch = Long.parseLong(String.valueOf(val));
+                if(ep.unix())
+                {
+                    epoch = epoch * 1000;
+                }
+                Date date = (Date) AxonBeanHelper.toObject(Date.class, epoch);
                 AxonBeanHelper.setPropertyValue(bean, p, date);
             }
             else if (AxonBeanHelper.isPrimitiveOrWrapper(propertyTargetClass))

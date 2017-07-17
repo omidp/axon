@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 public @interface Epoch
 {
 
+    boolean unix() default true;
+    
 }
