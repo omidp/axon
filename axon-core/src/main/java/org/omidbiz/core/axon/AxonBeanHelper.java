@@ -297,7 +297,10 @@ public class AxonBeanHelper
         {
             for (Method method : c.getDeclaredMethods())
             {
-                if (method.getReturnType().isInterface() == false && declaredMethods.contains(method) == false)
+                boolean hashCodeEqual = "equals".equals(method.getName()) || "hashCode".equals(method.getName());  
+                if (method.getReturnType().isInterface() == false 
+                        && declaredMethods.contains(method) == false
+                        && hashCodeEqual == false)
                     declaredMethods.add(method);
             }
         }
