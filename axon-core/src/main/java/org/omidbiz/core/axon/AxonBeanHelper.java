@@ -1,4 +1,3 @@
-
 package org.omidbiz.core.axon;
 
 import java.lang.reflect.Field;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.WeakHashMap;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -33,6 +33,8 @@ public class AxonBeanHelper
 
     private static final Class<?>[] WRAPPER_TYPES = { Integer.class, Long.class, Short.class, Float.class, Double.class, Byte.class,
             Boolean.class, Character.class, String.class, BigDecimal.class, Date.class, java.util.Date.class, Timestamp.class };
+
+   
 
     public static boolean isPrimitive(Class<?> clazz)
     {
@@ -295,7 +297,8 @@ public class AxonBeanHelper
         {
             for (Method method : c.getDeclaredMethods())
             {
-                declaredMethods.add(method);
+                if (method.getReturnType().isInterface() == false && declaredMethods.contains(method) == false)
+                    declaredMethods.add(method);
             }
         }
         Map<String, Method> getterMap = new HashMap<String, Method>();
@@ -307,7 +310,6 @@ public class AxonBeanHelper
                 if (Modifier.isPublic(method.getModifiers()))
                 {
                     String methodName = method.getName();
-                    // System.out.println(methodName);
                     if (methodName.startsWith("get"))
                     {
                         String propName = WordUtils.uncapitalize(methodName.substring("get".length(), methodName.length()));
@@ -422,17 +424,17 @@ public class AxonBeanHelper
 
         if (t == Set.class)
         {
-            if(Long.class.equals(type))
+            if (Long.class.equals(type))
                 return new HashSet<Long>();
-            if(Integer.class.equals(type))
+            if (Integer.class.equals(type))
                 return new HashSet<Integer>();
             return new HashSet<>();
         }
         else if (t == List.class)
         {
-            if(Long.class.equals(type))
+            if (Long.class.equals(type))
                 return new ArrayList<Long>();
-            if(Integer.class.equals(type))
+            if (Integer.class.equals(type))
                 return new ArrayList<Integer>();
             return new ArrayList<>();
         }
