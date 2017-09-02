@@ -1,6 +1,7 @@
 package org.omidbiz.core.axon;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -129,6 +130,25 @@ public class Axon
         }
 
         return prototype;
+    }
+    
+    public <T> List<T> toObjectList(String jsonContent, Class<? extends T> clz, T prototype)
+    {
+        List<T> result = new ArrayList<>();
+        try
+        {
+            JSONArray arr = new JSONArray(jsonContent);
+            for (int i = 0; i < arr.length(); i++)
+            {
+                JSONObject jsonObject = arr.getJSONObject(i);
+                result.add(toObject(jsonObject.toString(), clz, prototype));
+            }
+        }
+        catch (JSONException e)
+        {
+            throw new RuntimeException("invalid json " + clz, e);
+        }
+        return result;
     }
 
     public void parseJsonObject(Object bean, JSONObject jsonObject) throws JSONException, InstantiationException, IllegalAccessException,
