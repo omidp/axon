@@ -367,15 +367,15 @@ public class AxonBeanHelper
         }
         catch (IllegalAccessException e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("IllegalAccessException : can not set %s for type %s", p.getName(), p.getType().getName()));
         }
         catch (IllegalArgumentException e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("IllegalArgumentException : can not set %s for type %s", p.getName(), p.getType().getName()));
         }
         catch (InvocationTargetException e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("InvocationTargetException : can not set %s for type %s", p.getName(), p.getType().getName()));
         }
         finally
         {

@@ -151,7 +151,7 @@ public class Axon
         return result;
     }
 
-    public void parseJsonObject(Object bean, JSONObject jsonObject) throws JSONException, InstantiationException, IllegalAccessException,
+    protected void parseJsonObject(Object bean, JSONObject jsonObject) throws JSONException, InstantiationException, IllegalAccessException,
             NoSuchFieldException, SecurityException
     {
         List<Property> props = AxonBeanHelper.getProperties(bean.getClass(), true);

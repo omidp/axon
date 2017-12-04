@@ -37,7 +37,6 @@ public class ObjectElement implements Element
         else
         {
             List<Property> props = AxonBeanHelper.getProperties(value.getClass(), true);
-            // FIXME : when property is enum this loop never ends
             for (Property property : props)
             {
                 if (property.getGetter() == null)

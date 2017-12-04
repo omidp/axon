@@ -21,6 +21,8 @@ public class MapTest
         maps.put("name", "anotherValue");
         MapModel mm = new MapModel();
         mm.setContext(maps);
+//        Map<String, String> maps = new HashMap<>();
+//        maps.put("test", "tttt");
         Axon axon = new AxonBuilder().create();
         System.out.println(axon.toJson(mm));
     }

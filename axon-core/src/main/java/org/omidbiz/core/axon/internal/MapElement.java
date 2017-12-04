@@ -45,7 +45,8 @@ public class MapElement implements Element
     public String toJson(SerializationContext ctx)
     {
         Printer p = ctx.newPrinter();
-        p.openObject(PathProcessor.getIndentation(paths));
+        if(paths != null)
+            p.openObject(PathProcessor.getIndentation(paths));
         int i = 0;
         for (String key : elements.keySet())
         {
