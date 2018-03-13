@@ -33,7 +33,9 @@ public class ObjectElement implements Element
         this.paths = PathProcessor.splitPath(path);
         elementConvertor = ctx.applyTypeConverters(value);
         if (elementConvertor != null)
-            return;
+        {
+            elementConvertor.process(path, ctx);
+        }
         else
         {
             List<Property> props = AxonBeanHelper.getProperties(value.getClass(), true);
