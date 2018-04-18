@@ -27,7 +27,7 @@ public class Axon
         serializationContext = new SerializationContext();
     }
 
-    public synchronized String toJson(Object obj)
+    public String toJson(Object obj)
     {
         beforeFilters();
 
