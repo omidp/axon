@@ -375,6 +375,8 @@ public class AxonBeanHelper
         }
         catch (InvocationTargetException e)
         {
+            if(e.getCause() != null && "org.hibernate.LazyInitializationException".equals(e.getCause().getClass().getName()))
+                throw new RuntimeException(String.format("LazyInitializationException : %s for type %s", p.getName(), p.getType().getName()));
             throw new RuntimeException(String.format("InvocationTargetException : can not set %s for type %s", p.getName(), p.getType().getName()));
         }
         finally
