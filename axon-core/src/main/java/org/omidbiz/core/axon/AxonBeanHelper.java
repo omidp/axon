@@ -427,7 +427,7 @@ public class AxonBeanHelper
     {
         Class<?> t = p.getType();
 
-        if (t == Set.class)
+        if (t == Set.class || t== HashSet.class)
         {
             if (Long.class.equals(type))
                 return new HashSet<Long>();
@@ -435,7 +435,7 @@ public class AxonBeanHelper
                 return new HashSet<Integer>();
             return new HashSet<>();
         }
-        else if (t == List.class)
+        else if (t == List.class || t == ArrayList.class)
         {
             if (Long.class.equals(type))
                 return new ArrayList<Long>();
