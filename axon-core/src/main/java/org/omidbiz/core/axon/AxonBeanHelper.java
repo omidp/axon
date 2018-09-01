@@ -318,6 +318,11 @@ public class AxonBeanHelper
                         String propName = WordUtils.uncapitalize(methodName.substring("get".length(), methodName.length()));
                         getterMap.put(propName, method);
                     }
+                    if (methodName.startsWith("is"))
+                    {
+                        String propName = WordUtils.uncapitalize(methodName.substring("is".length(), methodName.length()));
+                        getterMap.put(propName, method);
+                    }
                     if (methodName.startsWith("set"))
                     {
                         String propName = WordUtils.uncapitalize(methodName.substring("set".length(), methodName.length()));
