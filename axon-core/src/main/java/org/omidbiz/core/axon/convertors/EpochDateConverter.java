@@ -15,7 +15,9 @@ public class EpochDateConverter implements TypeConverter<Date>
     @Override
     public boolean applies(Object instance)
     {
-        return instance != null && instance.getClass() == Date.class || instance.getClass() == java.sql.Date.class || instance.getClass() == Timestamp.class;
+        return instance != null && instance.getClass() == Date.class || instance.getClass() == java.sql.Date.class 
+                || instance.getClass() == Timestamp.class
+                || instance.getClass() == java.sql.Time.class;
     }
 
     @Override
@@ -23,5 +25,5 @@ public class EpochDateConverter implements TypeConverter<Date>
     {
         return new BasicElement(instance.getTime());
     }
-
+    
 }
