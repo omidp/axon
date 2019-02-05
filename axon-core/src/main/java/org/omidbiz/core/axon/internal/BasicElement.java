@@ -9,6 +9,8 @@ public class BasicElement implements Element
 {
     Object value;
 
+    Element elementConvertor;
+    
     public BasicElement(Object value)
     {
         if (value == null)
@@ -19,11 +21,20 @@ public class BasicElement implements Element
     @Override
     public void process(String path, SerializationContext ctx)
     {
+        elementConvertor = ctx.applyTypeConverters(value);
+        if (elementConvertor != null)
+        {
+            elementConvertor.process(path, ctx);
+        }
     }
 
     @Override
     public String toJson(SerializationContext ctx)
     {
+        if (elementConvertor != null)
+        {
+            return elementConvertor.toJson(ctx);
+        }
         if (value instanceof Character || value instanceof String)
         {
             return JSONObject.quote(String.valueOf(value));
