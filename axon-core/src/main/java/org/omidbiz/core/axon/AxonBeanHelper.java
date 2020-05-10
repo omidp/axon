@@ -23,6 +23,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.HibernateProxyHelper;
+
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 public class AxonBeanHelper
@@ -34,7 +37,22 @@ public class AxonBeanHelper
     private static final Class<?>[] WRAPPER_TYPES = { Integer.class, Long.class, Short.class, Float.class, Double.class, Byte.class,
             Boolean.class, Character.class, String.class, BigDecimal.class, Date.class, java.util.Date.class, Timestamp.class };
 
-   
+    private static final boolean isHibernateAvailable;
+    
+    static
+    {
+        boolean available;
+        try
+        {
+            Class.forName("org.hibernate.proxy.HibernateProxy");
+            available = true;
+        }
+        catch (ClassNotFoundException cnfe)
+        {
+            available = false;
+        }
+        isHibernateAvailable = available;
+    }
 
     public static boolean isPrimitive(Class<?> clazz)
     {
@@ -368,6 +386,14 @@ public class AxonBeanHelper
         try
         {
             Object value = p.getGetter().invoke(target);
+            if(isHibernateAvailable)
+            {
+                if(value instanceof HibernateProxy)
+                {
+                    if(((HibernateProxy)value).getHibernateLazyInitializer().isUninitialized())
+                        return null;
+                }
+            }
             return value;
         }
         catch (IllegalAccessException e)
