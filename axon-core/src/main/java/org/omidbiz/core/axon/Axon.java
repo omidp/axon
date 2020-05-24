@@ -178,8 +178,12 @@ public class Axon
             }
             else if (AxonBeanHelper.isPrimitiveOrWrapper(propertyTargetClass))
             {
-                Object val = jsonObject.get(p.getName());
-                AxonBeanHelper.setPropertyValue(bean, p, val);
+                if(jsonObject.isNull(p.getName()) == false)
+                {
+                    Object val = jsonObject.get(p.getName());
+                    if(val != null)
+                        AxonBeanHelper.setPropertyValue(bean, p, val);
+                }
             }
             else if (AxonBeanHelper.isArrayOrCollection(propertyTargetClass))
             {
@@ -207,11 +211,14 @@ public class Axon
         }
         else if (AxonBeanHelper.isEnum(property.getType()))
         {
-            String enumValue = jsonObject.getString(property.getName());
-            if (enumValue != null)
+            if(jsonObject.isNull(property.getName()) == false)
             {
-                Enum val = Enum.valueOf((Class<Enum>) property.getType(), enumValue);
-                AxonBeanHelper.setPropertyValue(bean, property, val);
+                String enumValue = jsonObject.getString(property.getName());
+                if (enumValue != null)
+                {
+                    Enum val = Enum.valueOf((Class<Enum>) property.getType(), enumValue);
+                    AxonBeanHelper.setPropertyValue(bean, property, val);
+                }
             }
         }
         else
@@ -220,7 +227,8 @@ public class Axon
             if (propVal == null)
                 propVal = property.getType().newInstance();
             AxonBeanHelper.setPropertyValue(bean, property, propVal);
-            parseJsonObject(propVal, jsonObject.getJSONObject(property.getName()));
+            if(jsonObject.isNull(property.getName()) == false)
+                parseJsonObject(propVal, jsonObject.getJSONObject(property.getName()));
         }
 
     }
