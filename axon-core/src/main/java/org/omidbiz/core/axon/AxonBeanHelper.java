@@ -108,7 +108,7 @@ public class AxonBeanHelper
     {
         if (clazz == null)
             throw new RuntimeException("null value");
-        return clazz.isArray() || isSubclass(clazz, Collection.class);
+        return clazz.isArray() || clazz.isAssignableFrom(Collection.class) || isSubclass(clazz, Collection.class);
     }
 
     public static boolean isArrayOrCollection(Object obj)
@@ -118,12 +118,22 @@ public class AxonBeanHelper
         return isArrayOrCollection(obj.getClass());
     }
 
+    public static boolean isList(Class<?> clazz)
+    {
+        if (clazz == null)
+            throw new RuntimeException("null value");
+        return clazz.isAssignableFrom(List.class) || isSubclass(clazz, List.class);
+    }
+
     public static boolean isMap(Class<?> clazz)
     {
         if (clazz == null)
             throw new RuntimeException("null value");
-        return isSubclass(clazz, Map.class);
+        return clazz.isAssignableFrom(Map.class) || isSubclass(clazz, Map.class);
     }
+    
+  
+    
 
     public static boolean isMap(Object obj)
     {
@@ -316,10 +326,21 @@ public class AxonBeanHelper
             for (Method method : c.getDeclaredMethods())
             {
                 boolean hashCodeEqual = "equals".equals(method.getName()) || "hashCode".equals(method.getName());  
-                if (method.getReturnType().isInterface() == false 
-                        && declaredMethods.contains(method) == false
+                if (declaredMethods.contains(method) == false
                         && hashCodeEqual == false)
-                    declaredMethods.add(method);
+                {
+                    if(method.getReturnType().isInterface())
+                    {
+                        if(isMap(method.getReturnType()) || 
+                                isArrayOrCollection(method.getReturnType()) ||
+                                isList(method.getReturnType()))
+                            declaredMethods.add(method);
+                    }
+                    else
+                    {
+                        declaredMethods.add(method);
+                    }
+                }
             }
         }
         Map<String, Method> getterMap = new HashMap<String, Method>();

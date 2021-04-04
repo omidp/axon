@@ -11,7 +11,7 @@ public class MapElement implements Element
 {
 
     private Map<String, Object> map;
-    Map<String, Element> elements;
+    Map<Object, Element> elements;
     private String[] paths;
 
     public MapElement(Object map)
@@ -27,7 +27,7 @@ public class MapElement implements Element
     public void process(String path, SerializationContext ctx)
     {
         this.paths = PathProcessor.splitPath(path);
-        elements = new HashMap<String, Element>();
+        elements = new HashMap<Object, Element>();
         for (Map.Entry<String, Object> entry : map.entrySet())
         {
             Object entryValue = entry.getValue();
@@ -37,7 +37,7 @@ public class MapElement implements Element
 
         }
 
-        for (Map.Entry<String, Element> entry : elements.entrySet())
+        for (Map.Entry<Object, Element> entry : elements.entrySet())
             entry.getValue().process(path, ctx);
     }
 
@@ -48,7 +48,7 @@ public class MapElement implements Element
         if(paths != null)
             p.openObject(PathProcessor.getIndentation(paths));
         int i = 0;
-        for (String key : elements.keySet())
+        for (Object key : elements.keySet())
         {
             Element el = elements.get(key);
             if (el instanceof NullElement && !ctx.serializeNull)
@@ -56,8 +56,8 @@ public class MapElement implements Element
 
             if (i++ > 0)
                 p.separator();
-            
-            p.appendObjElement(key, el.toJson(ctx));
+//            Class<? extends Object> class1 = key.getClass();
+            p.appendObjElement(""+key, el.toJson(ctx));
         }
         p.closeObject();
         return p.content();
